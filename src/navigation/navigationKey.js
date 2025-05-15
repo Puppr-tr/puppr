@@ -22,8 +22,18 @@ export const AuthNav = {
   EnterBirthDate: 'EnterBirthDate',
   SelectGender: 'SelectGender',
   SelectInterest: 'SelectInterest',
+  AboutScreen: 'AboutScreen',
   UploadPhoto: 'UploadPhoto',
   VerifyLoginOtp: 'VerifyLoginOtp',
+  DogProfileName: 'DogProfileName',
+  DogProfileAge: 'DogProfileAge',
+  DogProfileGender: 'DogProfileGender',
+  DogProfileBreed: 'DogProfileBreed',
+  DogProfileNature: 'DogProfileNature',
+  DogProfileBehavior: 'DogProfileBehavior',
+  DogProfileSize: 'DogProfileSize',
+  DogProfileTraining: 'DogProfileTraining',
+  DogProfileAbout: 'DogProfileAbout',
 };
 
 export const TabNav = {

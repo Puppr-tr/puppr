@@ -29,9 +29,10 @@ import FButton from '../../components/common/FButton';
 import VerifiedModal from '../../components/modal/VerifiedModal';
 import {StackNav, TabNav} from '../../navigation/navigationKey';
 import {setAsyncStorageData, setAuthToken} from '../../utils/AsyncStorage';
+import {AuthNav} from '../../navigation/navigationKey';
 
 export default function UploadPhoto({navigation, route}) {
-  const {userName, mobileNo, birthDate, gender, interest} = route?.params;
+  const {userName, mobileNo, birthDate, gender, interest, about} = route?.params;
 
   const [addImage, setAddImage] = useState([
     {id: 1, image: {}},
@@ -107,13 +108,11 @@ export default function UploadPhoto({navigation, route}) {
       birthDate: birthDate,
       gender: gender,
       interest: interest,
+      about: about,
       userImage: selectImage,
     };
     await setAsyncStorageData(USER_DATA, userData);
-    navigation.reset({
-      index: 0,
-      routes: [{name: StackNav.TabNavigation, userData: userData}],
-    });
+    navigation.navigate(AuthNav.DogProfileName, userData);
   };
   return (
     <FSafeAreaView style={localStyle.mainBgContainer}>
@@ -159,7 +158,7 @@ export default function UploadPhoto({navigation, route}) {
           </View>
           <FButton title={strings.next} onPress={onPressNext} />
         </View>
-        <StepIndicator step={5} />
+        <StepIndicator step={6} />
         <VerifiedModal
           visible={modalVisible}
           onPressStarted={onPressGetStarted}

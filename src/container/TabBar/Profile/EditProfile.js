@@ -4,12 +4,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Modal,
+  FlatList,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Entypo';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import {useNavigation} from '@react-navigation/native';
-import DateTimePicker from 'react-native-modal-datetime-picker';
 import Icons from 'react-native-vector-icons/Ionicons';
 
 // custom import
@@ -43,7 +44,7 @@ export default function EditProfile() {
     const data = await getAsyncStorageData(USER_DATA);
     setSelectImage(data?.userImage);
     setFullName(data?.userName);
-    setSelectedDate(data?.birthDate);
+    setSelectedAge(data?.birthDate);
     setMyInterest(data?.interest);
     setGender(data?.gender);
   };
@@ -51,6 +52,9 @@ export default function EditProfile() {
   useEffect(() => {
     userDetails();
   }, []);
+
+  // Generate ages from 18-99
+  const ages = Array.from({length: 82}, (_, i) => i + 18);
 
   const [addImage, setAddImage] = useState([
     {id: 1, image: {}},
@@ -62,8 +66,8 @@ export default function EditProfile() {
   const [selectImage, setSelectImage] = useState(null);
   const [fullName, setFullName] = useState('');
   const [fullNameError, setFullNameError] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedAge, setSelectedAge] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const [myInterest, setMyInterest] = useState(InterestData);
   const [location, setLocation] = useState('');
   const [gender, setGender] = useState('');
@@ -75,27 +79,35 @@ export default function EditProfile() {
     return false;
   };
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
+  const selectAge = (age) => {
+    setSelectedAge(age);
+    setModalVisible(false);
   };
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
+
+  const renderAgeItem = ({item}) => (
+    <TouchableOpacity 
+      style={localStyle.ageItem}
+      onPress={() => selectAge(item)}>
+      <FText 
+        type={'M16'} 
+        color={colors.black}>
+        {item}
+      </FText>
+      {selectedAge === item && (
+        <Icons
+          name="checkmark"
+          size={moderateScale(20)}
+          color={colors.secondary1}
+        />
+      )}
+    </TouchableOpacity>
+  );
 
   const onChangeLocation = text => {
     setLocation(text);
   };
   const onChangeGender = text => {
     setGender(text);
-  };
-  const handleConfirm = date => {
-    var expiryDate = date.toISOString().split('T')[0];
-    const day = expiryDate.split('-')[2];
-    const month = expiryDate.split('-')[1];
-    const year = expiryDate.split('-')[0];
-    setSelectedDate(day + '/' + month + '/' + year);
-
-    hideDatePicker();
   };
 
   const AddPhotos = ({item, index}) => {
@@ -183,7 +195,7 @@ export default function EditProfile() {
   const onPressSaveChanges = async () => {
     const userData = {
       userName: fullName,
-      birthDate: selectedDate,
+      birthDate: selectedAge,
       gender: gender,
       interest: myInterest,
       userImage: selectImage,
@@ -247,26 +259,56 @@ export default function EditProfile() {
         />
         <View>
           <FText type={'R16'} style={localStyle.labelContainer}>
-            {strings.birthDate}
+            {strings.age}
           </FText>
           <TouchableOpacity
-            style={localStyle.datePikerStyle}
-            onPress={showDatePicker}>
+            style={localStyle.dropdownButton}
+            onPress={() => setModalVisible(true)}>
             <FText
               type={'M16'}
-              color={selectedDate ? colors.black : colors.grayScale400}
-              style={styles.ml5}>
-              {selectedDate ? selectedDate : strings.birthDate}
+              color={selectedAge ? colors.black : colors.grayScale400}
+              style={[{ flex: 1, paddingLeft: 10 }]}
+              numberOfLines={1}>
+              {selectedAge ? `${selectedAge} years old` : 'Select your age'}
             </FText>
-            <DateTimePicker
-              isVisible={isDatePickerVisible}
-              mode="date"
-              onCancel={hideDatePicker}
-              onConfirm={handleConfirm}
-              date={new Date()}
-              maximumDate={new Date()}
+            <Icons
+              name="chevron-down-outline"
+              size={moderateScale(20)}
+              color={colors.primary}
+              style={{ marginRight: 8 }}
             />
           </TouchableOpacity>
+          
+          {/* Age Picker Modal */}
+          <Modal
+            visible={modalVisible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setModalVisible(false)}>
+            <View style={localStyle.modalOverlay}>
+              <View style={localStyle.modalContent}>
+                <View style={localStyle.modalHeader}>
+                  <FText type={'B18'} color={colors.primary}>
+                    Select Your Age
+                  </FText>
+                  <TouchableOpacity onPress={() => setModalVisible(false)}>
+                    <Icons
+                      name="close"
+                      size={moderateScale(24)}
+                      color={colors.grayScale500}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <FlatList
+                  data={ages}
+                  renderItem={renderAgeItem}
+                  keyExtractor={(item) => item.toString()}
+                  showsVerticalScrollIndicator={true}
+                  style={localStyle.ageList}
+                />
+              </View>
+            </View>
+          </Modal>
         </View>
         <FText type={'R16'} style={localStyle.labelContainer}>
           {strings.about}
@@ -281,42 +323,28 @@ export default function EditProfile() {
             <FText color={colors.grayScale400}>{'/250'}</FText>
           </FText>
         </TouchableOpacity>
-        <View style={localStyle.myInterestHeader}>
-          <FText type={'M16'}>{strings.myInterests}</FText>
-          <TouchableOpacity>
-            <FText type={'M16'} color={colors.secondary1}>
-              {strings.edit}
-            </FText>
-          </TouchableOpacity>
+        <View style={localStyle.myInterestContainer}>
+          <FText type={'R16'} style={localStyle.labelContainer}>
+            {strings.myInterests}
+          </FText>
+          <View>
+            <TouchableOpacity>
+              <FText type={'B16'} color={colors.primary}>
+                {strings.edit}
+              </FText>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={localStyle.interestRoot}>
+        <View style={localStyle.interestFoodContainer}>
           {(myInterest || []).map((item, index) => {
-            return <MyInterest item={item} />;
+            return <MyInterest item={item} key={index} />;
           })}
         </View>
-
-        <FInput
-          placeholder={strings.location}
-          _value={location}
-          keyBoardType={'default'}
-          maxLength={30}
-          autoCapitalize={'none'}
-          toGetTextFieldValue={onChangeLocation}
-          label={strings.location}
-          labelTextColor={colors.black}
+        <FButton
+          onPress={onPressSaveChanges}
+          title={strings.saveChanges}
+          containerStyle={localStyle.containerBtnStyle}
         />
-        <FInput
-          placeholder={strings.gender}
-          _value={gender}
-          keyBoardType={'default'}
-          maxLength={30}
-          autoCapitalize={'none'}
-          toGetTextFieldValue={onChangeGender}
-          label={strings.gender}
-          labelTextColor={colors.black}
-          rightAccessory={() => <RightIcon />}
-        />
-        <FButton title={strings.saveChanges} onPress={onPressSaveChanges} />
       </KeyBoardAvoidWrapper>
     </FSafeAreaView>
   );
@@ -325,110 +353,135 @@ export default function EditProfile() {
 const localStyle = StyleSheet.create({
   mainBgContainer: {
     ...styles.flexGrow1,
-    backgroundColor: null,
   },
   mainContainer: {
     ...styles.ph20,
-    ...styles.flexGrow1,
   },
   userImage: {
-    width: getWidth(215),
-    height: getHeight(215),
-    ...styles.mr5,
-  },
-  addPhotoContainer: {
-    width: getWidth(100),
-    height: getHeight(102),
-    borderRadius: moderateScale(16),
+    width: getWidth(180),
+    height: getHeight(250),
     ...styles.center,
-    backgroundColor: colors.white,
-    ...styles.mh5,
-    ...styles.mv5,
-    shadowOffset: {
-      width: 1,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  addTextContainer: {
-    height: moderateScale(24),
-    ...styles.flexRow,
-    ...styles.center,
-    borderRadius: moderateScale(32),
-    backgroundColor: colors.secondary1,
-    width: moderateScale(62),
-    ...styles.mt5,
+    backgroundColor: colors.primary50,
+    overflow: 'hidden',
   },
   userImageAndAddImage: {
-    ...styles.flexRow,
+    ...styles.rowSpaceBetween,
     ...styles.mt20,
+  },
+  addPhotoContainer: {
+    width: getWidth(150),
+    height: getHeight(72),
+    borderRadius: moderateScale(12),
+    backgroundColor: colors.primary50,
+    ...styles.center,
+    ...styles.mv10,
+  },
+  addTextContainer: {
+    ...styles.rowCenter,
+    ...styles.mt5,
+    ...styles.ph10,
+    ...styles.pv5,
+    backgroundColor: colors.secondary1,
+    borderRadius: moderateScale(16),
+  },
+  changePhotoContainer: {
+    ...styles.flexRow,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    width: '100%',
+    ...styles.ph10,
+    ...styles.pv5,
+    position: 'absolute',
+    bottom: 0,
+    ...styles.rowCenter,
+  },
+  changePhotoText: {
+    ...styles.ml10,
   },
   bottomAddContainer: {
     ...styles.flexRow,
     ...styles.wrap,
-    ...styles.mt10,
-  },
-  changePhotoContainer: {
-    width: moderateScale(140),
-    height: moderateScale(36),
-    borderRadius: moderateScale(32),
-    ...styles.rowCenter,
-    backgroundColor: colors.transparent,
-    position: 'absolute',
-    bottom: moderateScale(10),
-    ...styles.selfCenter,
-  },
-  changePhotoText: {
-    ...styles.ml5,
-  },
-  image: {
-    width: moderateScale(100),
-    height: moderateScale(100),
+    ...styles.justifyBetween,
   },
   personalDtlsText: {
-    ...styles.mv10,
-  },
-  labelContainer: {
-    ...styles.mt15,
-  },
-  datePikerStyle: {
-    backgroundColor: colors.white,
-    width: '100%',
-    ...styles.selfCenter,
-    borderRadius: moderateScale(16),
-    height: getHeight(52),
-    ...styles.mt5,
-    ...styles.ph10,
-    ...styles.pv15,
+    ...styles.mt20,
   },
   aboutContainer: {
+    ...styles.rowSpaceBetween,
+    backgroundColor: colors.inputBg,
+    height: getHeight(110),
+    borderRadius: moderateScale(12),
+    ...styles.p10,
+  },
+  numberText: {
+    alignSelf: 'flex-end',
+  },
+  labelContainer: {
+    ...styles.mt10,
+  },
+  dropdownButton: {
+    ...styles.rowSpaceBetween,
+    ...styles.ph20,
+    ...styles.pv18,
+    borderWidth: moderateScale(1),
+    borderColor: colors.selectBorder,
+    borderRadius: moderateScale(16),
     backgroundColor: colors.white,
     width: '100%',
     ...styles.selfCenter,
-    borderRadius: moderateScale(16),
-    ...styles.mt5,
-    ...styles.p15,
-  },
-  numberText: {
-    ...styles.selfEnd,
-  },
-  myInterestHeader: {
-    ...styles.rowSpaceBetween,
-    ...styles.mv10,
+    height: getHeight(60),
+    ...styles.mt10,
   },
   myInterestContainer: {
+    ...styles.rowSpaceBetween,
+    ...styles.flexRow,
+    ...styles.mt10,
+  },
+  interestFoodContainer: {
+    ...styles.flexRow,
+    ...styles.wrap,
+  },
+  myInterestContainer: {
+    ...styles.flexRow,
+    ...styles.rowSpaceBetween,
     borderColor: colors.selectBorder,
     borderRadius: moderateScale(32),
     borderWidth: moderateScale(1),
     ...styles.p10,
     ...styles.mv5,
-    ...styles.rowCenter,
     ...styles.mh5,
   },
-  interestRoot: {
-    ...styles.flexRow,
-    ...styles.wrap,
+  containerBtnStyle: {
+    ...styles.mv30,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: colors.white,
+    width: '90%',
+    maxHeight: '70%',
+    borderRadius: moderateScale(16),
+    ...styles.pt10,
+    ...styles.pb20,
+  },
+  modalHeader: {
+    ...styles.rowSpaceBetween,
+    ...styles.ph20,
+    ...styles.pv10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.grayScale200,
+  },
+  ageList: {
+    ...styles.mt5,
+  },
+  ageItem: {
+    ...styles.ph20,
+    ...styles.pv15,
+    ...styles.rowSpaceBetween,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.grayScale100,
   },
 });

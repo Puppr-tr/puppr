@@ -13,7 +13,7 @@ import {colors, styles} from '../../themes';
 import {deviceWidth, moderateScale} from '../../common/constants';
 import FText from '../common/FText';
 
-export default function StepIndicator({step, style, rightIcon, onPressNext}) {
+export default function StepIndicator({step, style, rightIcon, onPressNext, totalSteps = 6}) {
   const renderItem = ({item}) => {
     return (
       <View
@@ -22,18 +22,20 @@ export default function StepIndicator({step, style, rightIcon, onPressNext}) {
           {
             backgroundColor:
               item <= step ? colors.secondary1 : colors.stepColor,
+            width: (deviceWidth - moderateScale(50)) / totalSteps,
           },
         ]}
       />
     );
   };
+  
   return (
     <SafeAreaView style={[localStyle.viewStyle, style]}>
       <View style={localStyle.iconAndStepContainer}>
         <FText type={'B20'} color={colors.primary} style={styles.selfEnd}>
           {step}
-          <FText type={'B20'} color={colors.stepColor}>
-            {'/5'}
+          <FText type={'B20'} color={colors.grayScale500}>
+            {'/' + totalSteps}
           </FText>
         </FText>
         {rightIcon ? (
@@ -50,7 +52,7 @@ export default function StepIndicator({step, style, rightIcon, onPressNext}) {
         ) : null}
       </View>
       <FlatList
-        data={[1, 2, 3, 4, 5, 6]}
+        data={Array.from({length: totalSteps}, (_, i) => i + 1)}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         horizontal
@@ -66,9 +68,9 @@ const localStyle = StyleSheet.create({
     ...styles.mb30,
   },
   HeaderStyle: {
-    width: moderateScale(70),
     height: moderateScale(4),
     ...styles.mt10,
+    marginHorizontal: 1,
   },
   iconAndStepContainer: {
     ...styles.rowSpaceBetween,

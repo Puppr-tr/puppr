@@ -24,9 +24,9 @@ import {getAsyncStorageData} from '../../utils/AsyncStorage';
 export default function LogIn({navigation}) {
   const [number, setNumber] = useState('');
   const [numberInputStyle, setNumberInputStyle] = useState(BlurredStyle);
-  const [callingCodeLib, setCallingCodeLib] = useState('+91');
+  const [callingCodeLib, setCallingCodeLib] = useState('+61');
   const [visiblePiker, setVisiblePiker] = useState(false);
-  const [countryCodeLib, setCountryCodeLib] = useState('IN');
+  const [countryCodeLib, setCountryCodeLib] = useState('AU');
   const [data, setData] = useState('');
 
   const openCountryPicker = () => setVisiblePiker(true);
@@ -67,24 +67,17 @@ export default function LogIn({navigation}) {
 
   const LeftIcon = () => {
     return (
-      <TouchableOpacity
-        onPress={openCountryPicker}
-        style={localStyle.countryPickerStyle}>
+      <View style={localStyle.countryPickerStyle}>
         <FlagButton
           value={callingCodeLib}
-          onOpen={openCountryPicker}
           withEmoji={true}
           countryCode={countryCodeLib}
           withCallingCodeButton={true}
           containerButtonStyle={localStyle.countryPickerButton}
-        />
-        <Ionicon
-          name={'chevron-down'}
-          size={moderateScale(16)}
-          color={colors.grayScale400}
+          disabled={true}
         />
         <View style={localStyle.lineView} />
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -135,13 +128,14 @@ export default function LogIn({navigation}) {
               insideLeftIcon={() => <LeftIcon />}
             />
             <CountryPicker
-              countryCode={'IN'}
-              withFilter={true}
+              countryCode={'AU'}
+              withFilter={false}
               visible={visiblePiker}
               withFlag={true}
               withFlagButton={true}
               withCallingCode={true}
-              withAlphaFilter={true}
+              withAlphaFilter={false}
+              countryCodes={['AU']}
               onSelect={country => onSelectCountry(country)}
               withCountryNameButton={true}
               onClose={closeCountryPicker}

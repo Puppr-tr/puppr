@@ -11,30 +11,28 @@ import {AuthNav} from '../../navigation/navigationKey';
 import FText from '../../components/common/FText';
 import strings from '../../i18n/strings';
 import StepIndicator from '../../components/Home/StepIndicator';
-import {USER_DATA, getHeight, moderateScale} from '../../common/constants';
-import {setAsyncStorageData} from '../../utils/AsyncStorage';
+import {getHeight, moderateScale} from '../../common/constants';
 
-export default function EnterBirthDate({navigation, route}) {
-  const {userName, mobileNo} = route?.params;
+export default function DogProfileAge({navigation, route}) {
+  const userData = route?.params;
 
   const [selectedAge, setSelectedAge] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Generate ages from 18-99
-  const ages = Array.from({length: 82}, (_, i) => i + 18);
+  // Generate ages from 0-20
+  const ages = Array.from({length: 21}, (_, i) => i);
 
   const onPressNext = async () => {
     if (selectedAge === null) {
-      alert(strings.pleaseSelectYourAge);
+      alert(strings.pleaseSelectDogAge);
     } else {
-      navigation.navigate(AuthNav.SelectGender, {
-        birthDate: selectedAge,
-        userName: userName,
-        mobileNo: mobileNo,
+      navigation.navigate(AuthNav.DogProfileGender, {
+        ...userData,
+        dogBirthDate: selectedAge,
       });
     }
   };
-
+  
   const selectAge = (age) => {
     setSelectedAge(age);
     setModalVisible(false);
@@ -47,7 +45,7 @@ export default function EnterBirthDate({navigation, route}) {
       <FText 
         type={'M16'} 
         color={colors.black}>
-        {item}
+        {item === 0 ? "Less than 1 year" : item === 1 ? "1 year" : `${item} years`}
       </FText>
       {selectedAge === item && (
         <Ionicons
@@ -59,6 +57,13 @@ export default function EnterBirthDate({navigation, route}) {
     </TouchableOpacity>
   );
 
+  const getDisplayText = () => {
+    if (selectedAge === null) return 'Select your dog\'s age';
+    if (selectedAge === 0) return "Less than 1 year";
+    if (selectedAge === 1) return "1 year old";
+    return `${selectedAge} years old`;
+  };
+
   return (
     <FSafeAreaView>
       <FHeader />
@@ -66,22 +71,22 @@ export default function EnterBirthDate({navigation, route}) {
         <View style={localStyle.mainContainer}>
           <View>
             <FText type={'B24'} color={colors.primary} align={'center'}>
-              {strings.whatIsYourAge}
+              {strings.howOldIsYourDog}
             </FText>
             <TouchableOpacity
               style={[
                 localStyle.dropdownButton,
                 {
-                  borderColor: selectedAge ? colors.secondary1 : colors.white,
+                  borderColor: selectedAge !== null ? colors.secondary1 : colors.white,
                 },
               ]}
               onPress={() => setModalVisible(true)}>
               <FText
                 type={'M16'}
-                color={selectedAge ? colors.black : colors.grayScale400}
+                color={selectedAge !== null ? colors.black : colors.grayScale400}
                 style={[{ flex: 1, paddingLeft: 10 }]}
                 numberOfLines={1}>
-                {selectedAge ? `${selectedAge} years old` : 'Select your age'}
+                {getDisplayText()}
               </FText>
               <Ionicons
                 name="chevron-down-outline"
@@ -92,7 +97,7 @@ export default function EnterBirthDate({navigation, route}) {
             </TouchableOpacity>
           </View>
           <View>
-            <StepIndicator step={2} rightIcon onPressNext={onPressNext} />
+            <StepIndicator step={2} rightIcon onPressNext={onPressNext} totalSteps={9} />
           </View>
           
           {/* Age Picker Modal */}
@@ -105,7 +110,7 @@ export default function EnterBirthDate({navigation, route}) {
               <View style={localStyle.modalContent}>
                 <View style={localStyle.modalHeader}>
                   <FText type={'B18'} color={colors.primary}>
-                    Select Your Age
+                    Select Your Dog's Age
                   </FText>
                   <TouchableOpacity onPress={() => setModalVisible(false)}>
                     <Ionicons
@@ -181,4 +186,4 @@ const localStyle = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.grayScale100,
   },
-});
+}); 

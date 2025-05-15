@@ -8,14 +8,14 @@ import {colors, styles} from '../../themes';
 import FText from '../../components/common/FText';
 import strings from '../../i18n/strings';
 import {moderateScale} from '../../common/constants';
-import {SelectInterestData} from '../../api/constant';
+import {DogNatureData} from '../../api/constant';
 import StepIndicator from '../../components/Home/StepIndicator';
 import {AuthNav} from '../../navigation/navigationKey';
 
-export default function SelectInterest({navigation, route}) {
-  const {userName, mobileNo, birthDate, gender} = route?.params;
+export default function DogProfileNature({navigation, route}) {
+  const userData = route?.params;
 
-  const [selectedChips, setSelectedChips] = useState([]);
+  const [selectedNatures, setSelectedNatures] = useState([]);
   const renderChips = ({item, index}) => {
     return (
       <TouchableOpacity
@@ -24,36 +24,33 @@ export default function SelectInterest({navigation, route}) {
         style={[
           localStyle.chipsContainer,
           {borderColor: colors.selectBorder},
-          selectedChips.includes(item) && {
+          selectedNatures.includes(item) && {
             backgroundColor: colors.secondary1,
           },
         ]}>
         <FText
           type={'b18'}
-          color={selectedChips.includes(item) ? colors.white : colors.primary}>
+          color={selectedNatures.includes(item) ? colors.white : colors.primary}>
           {item}
         </FText>
       </TouchableOpacity>
     );
   };
   const onPressChips = value => {
-    if (selectedChips.includes(value)) {
-      setSelectedChips(selectedChips.filter(item => item !== value));
+    if (selectedNatures.includes(value)) {
+      setSelectedNatures(selectedNatures.filter(item => item !== value));
     } else {
-      setSelectedChips([...selectedChips, value]);
+      setSelectedNatures([...selectedNatures, value]);
     }
   };
   const onPressNext = () => {
-    if (selectedChips.length === 5 || selectedChips.length > 5) {
-      navigation.navigate(AuthNav.AboutScreen, {
-        userName: userName,
-        mobileNo: mobileNo,
-        birthDate: birthDate,
-        gender: gender,
-        interest: selectedChips,
-      });
+    if (selectedNatures.length === 0) {
+      alert(strings.pleaseSelectAtLeastOneDogNature);
     } else {
-      alert(strings.pleaseSelectAtLeastYourInterest);
+      navigation.navigate(AuthNav.DogProfileBehavior, {
+        ...userData,
+        dogNature: selectedNatures,
+      });
     }
   };
   return (
@@ -62,11 +59,11 @@ export default function SelectInterest({navigation, route}) {
       <View style={localStyle.mainContainer}>
         <View style={styles.flex}>
           <FText type={'B24'} color={colors.primary} align={'center'}>
-            {strings.selectUptoInterests}
+            {strings.selectDogPersonality}
           </FText>
           <View style={localStyle.chipMainContainer}>
             <FlatList
-              data={SelectInterestData}
+              data={DogNatureData}
               renderItem={renderChips}
               showsVerticalScrollIndicator={false}
               keyExtractor={(item, index) => index.toString()}
@@ -76,7 +73,7 @@ export default function SelectInterest({navigation, route}) {
             />
           </View>
         </View>
-        <StepIndicator step={4} rightIcon onPressNext={onPressNext} />
+        <StepIndicator step={5} rightIcon onPressNext={onPressNext} totalSteps={9} />
       </View>
     </FSafeAreaView>
   );
@@ -106,4 +103,10 @@ const localStyle = StyleSheet.create({
   columnWrapperStyle: {
     ...styles.wrap,
   },
-});
+  bottomContainer: {
+    ...styles.mb15,
+  },
+  stepText: {
+    ...styles.mb5,
+  }
+}); 

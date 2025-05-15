@@ -22,6 +22,18 @@ import VerifyLoginOtp from '../container/Auth/VerifyLoginOtp';
 import OnBoarding from '../container/OnBoarding';
 import EnterBirthDate from '../container/Auth/EnterBirthDate';
 import StoryView from '../container/TabBar/Home/UserStory/StoryView';
+import AboutScreen from '../container/Auth/AboutScreen';
+
+// Dog Profile Screens
+import DogProfileName from '../container/Auth/DogProfileName';
+import DogProfileAge from '../container/Auth/DogProfileAge';
+import DogProfileGender from '../container/Auth/DogProfileGender';
+import DogProfileBreed from '../container/Auth/DogProfileBreed';
+import DogProfileNature from '../container/Auth/DogProfileNature';
+import DogProfileBehavior from '../container/Auth/DogProfileBehavior';
+import DogProfileSize from '../container/Auth/DogProfileSize';
+import DogProfileTraining from '../container/Auth/DogProfileTraining';
+import DogProfileAbout from '../container/Auth/DogProfileAbout';
 
 // Tab Screen
 import HomeScreen from '../container/TabBar/Home/HomeScreen';
@@ -54,8 +66,19 @@ export const AuthRoute = {
   EnterBirthDate,
   SelectGender,
   SelectInterest,
+  AboutScreen,
   UploadPhoto,
   VerifyLoginOtp,
+  // Dog Profile Screens
+  DogProfileName,
+  DogProfileAge,
+  DogProfileGender,
+  DogProfileBreed,
+  DogProfileNature,
+  DogProfileBehavior,
+  DogProfileSize,
+  DogProfileTraining,
+  DogProfileAbout,
 };
 
 export const TabRoute = {
